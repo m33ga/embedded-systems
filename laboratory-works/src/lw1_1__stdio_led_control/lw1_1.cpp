@@ -8,21 +8,24 @@ Led led_1_1(53);
 void lab_1_1_setup() {
     srvSerialSetup();
     printf("Serial communication initialized!\n");
-    printf("Available commands:\n  'ledon' - turn the LED on\n  'ledoff' - turn the LED off\n");
+    printf("Available commands:\n  'led on' - turn the LED on\n  'led off' - turn the LED off\n");
 }
 
 void lab_1_1_loop() {
-    char c[11] = "";
-    if (scanf("%10s", c) > 0) {
-        printf("Received command: %s\n", c);
-        if (strcmp(c, "ledon") == 0) {
+    char word1[5] = "";
+    char word2[5] = "";
+
+    if (scanf("%4s %4s", word1, word2) == 2) {
+        printf("Received command: %s %s\n", word1, word2);
+
+        if (strcmp(word1, "led") == 0 && strcmp(word2, "on") == 0) {
             if (led_1_1.isOn()) {
                 printf("Led is already on\n");
             } else {
                 led_1_1.on();
                 printf("Led was Turned On\n");
             }
-        } else if (strcmp(c, "ledoff") == 0) {
+        } else if (strcmp(word1, "led") == 0 && strcmp(word2, "off") == 0) {
             if (!led_1_1.isOn()) {
                 printf("Led is already off\n");
             } else {
