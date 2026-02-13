@@ -3,7 +3,7 @@
 #include "dd_led.h"
 #include <Arduino.h>
 
-Led led_1_1(LED_BUILTIN);
+Led led_1_1(53);
 
 void lab_1_1_setup() {
     srvSerialSetup();
