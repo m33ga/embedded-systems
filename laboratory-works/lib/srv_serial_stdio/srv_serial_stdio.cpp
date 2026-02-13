@@ -6,8 +6,19 @@ int srvSerialGetChar(FILE* stream) {
     while (!Serial.available()) {
         ;
     }
-    return Serial.read();
+
+    char c = Serial.read();
+
+    if (c == '\r') {              // handle Enter properly
+        Serial.write('\r');
+        Serial.write('\n');
+        return '\n';              // scanf expects '\n'
+    } else {
+        Serial.write(c);          // echo typed character
+        return c;
+    }
 }
+
 
 int srvSerialPutChar(char c, FILE* stream) {
     if (c == '\n') {
