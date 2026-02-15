@@ -1,7 +1,7 @@
 #include "dd_led.h"
 
 
-Led::Led(int pin, bool activeLow = false) {
+Led::Led(int pin, bool activeLow) {
     this->pin = pin;
     stateOn = false;
     this->activeLow = activeLow; // some LEDs turn on when the pin is LOW (builtin LED on esp8266)
