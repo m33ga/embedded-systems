@@ -1,11 +1,11 @@
-#include "lw1_1__stdio_led_control/lw1_1.h"
+#include "lw1_2__lcd_keypad/lw1_2.h"
 #include <Arduino.h>
 
 
 void setup() {
-  lab_1_1_setup();
+  lab_1_2_setup();
 }
 
 void loop() {
-  lab_1_1_loop();
+  lab_1_2_loop();
 }
