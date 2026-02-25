@@ -1,11 +1,10 @@
-#include "lw1_2__lcd_keypad/lw1_2.h"
+#include "lw3_1__led_button_tasks_bare_metal/lw3_1.h"
 #include <Arduino.h>
 
-
 void setup() {
-  lab_1_2_setup();
+    lw3_1_setup();
 }
 
 void loop() {
-  lab_1_2_loop();
+    lw3_1_loop();
 }
