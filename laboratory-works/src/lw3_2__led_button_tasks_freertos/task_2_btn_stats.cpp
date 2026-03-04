@@ -18,6 +18,34 @@ static unsigned long total_short_duration = 0;
 static unsigned long total_long_duration = 0;
 static SemaphoreHandle_t stats_mutex = NULL;
 
+static int last_blink_long = 0;
+
+// Read and clear all pending data from task 1, update stats immediately
+static void process_pending(void) {
+    xSemaphoreTake(task_1_data_mutex, portMAX_DELAY);
+    int ps = task_1_pending_short_count;
+    int pl = task_1_pending_long_count;
+    unsigned long psd = task_1_pending_short_dur;
+    unsigned long pld = task_1_pending_long_dur;
+    int last_long = task_1_last_is_long;
+    task_1_pending_short_count = 0;
+    task_1_pending_long_count = 0;
+    task_1_pending_short_dur = 0;
+    task_1_pending_long_dur = 0;
+    xSemaphoreGive(task_1_data_mutex);
+
+    if (ps + pl > 0) {
+        xSemaphoreTake(stats_mutex, portMAX_DELAY);
+        total_count += ps + pl;
+        short_count += ps;
+        long_count += pl;
+        total_short_duration += psd;
+        total_long_duration += pld;
+        xSemaphoreGive(stats_mutex);
+        last_blink_long = last_long;
+    }
+}
+
 int task_2_get_total_count(void) {
     int val;
     xSemaphoreTake(stats_mutex, portMAX_DELAY);
@@ -67,32 +95,24 @@ void task_2_btn_stats_setup(void) {
     long_count = 0;
     total_short_duration = 0;
     total_long_duration = 0;
+    last_blink_long = 0;
     yellow_led.off();
 }
 
 void task_2_btn_stats_loop(void) {
-    // Block until task 1 signals a valid press detection
-    if (xSemaphoreTake(task_1_detected_semphr, portMAX_DELAY) == pdTRUE) {
-        unsigned long dur = task_1_get_last_duration();
-        int is_long = task_1_is_last_press_long();
+    // Block until task 1 signals at least one press pending
+    if (xSemaphoreTake(task_1_press_semphr, portMAX_DELAY) == pdTRUE) {
+        process_pending();
 
-        // Update statistics under mutex
-        xSemaphoreTake(stats_mutex, portMAX_DELAY);
-        total_count++;
-        if (is_long) {
-            long_count++;
-            total_long_duration += dur;
-        } else {
-            short_count++;
-            total_short_duration += dur;
-        }
-        xSemaphoreGive(stats_mutex);
-
-        // Blink yellow LED: 5 blinks for short, 10 for long
-        int blinks = is_long ? TASK_2_BLINK_LONG : TASK_2_BLINK_SHORT;
+        // Blink yellow LED: 5 for short, 10 for long
+        int blinks = last_blink_long ? TASK_2_BLINK_LONG : TASK_2_BLINK_SHORT;
         for (int i = 0; i < blinks * 2; i++) {
             yellow_led.toggle();
             vTaskDelay(pdMS_TO_TICKS(TASK_2_BLINK_DELAY_MS));
+            // Process any new presses that arrived during blink delay
+            if (xSemaphoreTake(task_1_press_semphr, 0) == pdTRUE) {
+                process_pending();
+            }
         }
         yellow_led.off();
     }

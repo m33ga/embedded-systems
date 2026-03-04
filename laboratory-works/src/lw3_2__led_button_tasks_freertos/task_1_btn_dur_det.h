@@ -7,11 +7,17 @@
 void task_1_btn_dur_det_setup(void);
 void task_1_btn_dur_det_loop(void);
 
-// Binary semaphore signaled on each valid press-release cycle
-extern SemaphoreHandle_t task_1_detected_semphr;
+// Binary semaphore: signals at least one new press pending
+extern SemaphoreHandle_t task_1_press_semphr;
 
-// Mutex-protected getters for last press data
-unsigned long task_1_get_last_duration(void);
-int task_1_is_last_press_long(void);
+// Mutex protecting shared pending press data
+extern SemaphoreHandle_t task_1_data_mutex;
+
+// Shared pending data (access only under task_1_data_mutex)
+extern int task_1_pending_short_count;
+extern int task_1_pending_long_count;
+extern unsigned long task_1_pending_short_dur;
+extern unsigned long task_1_pending_long_dur;
+extern int task_1_last_is_long;
 
 #endif
