@@ -105,13 +105,19 @@ void task_2_btn_stats_loop(void) {
         process_pending();
 
         // Blink yellow LED: 5 for short, 10 for long
-        int blinks = last_blink_long ? TASK_2_BLINK_LONG : TASK_2_BLINK_SHORT;
-        for (int i = 0; i < blinks * 2; i++) {
+        // Reset counter on new press (like bare-metal blink_cnt reset)
+        int blink_cnt = (last_blink_long ? TASK_2_BLINK_LONG : TASK_2_BLINK_SHORT) * 2;
+        int i = 0;
+        while (i < blink_cnt) {
             yellow_led.toggle();
             vTaskDelay(pdMS_TO_TICKS(TASK_2_BLINK_DELAY_MS));
-            // Process any new presses that arrived during blink delay
+            i++;
+            // If new press arrived, restart blink for the new press
             if (xSemaphoreTake(task_1_press_semphr, 0) == pdTRUE) {
                 process_pending();
+                blink_cnt = (last_blink_long ? TASK_2_BLINK_LONG : TASK_2_BLINK_SHORT) * 2;
+                i = 0;
+                yellow_led.off();
             }
         }
         yellow_led.off();
