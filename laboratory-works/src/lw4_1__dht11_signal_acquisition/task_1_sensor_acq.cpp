@@ -1,5 +1,6 @@
 #include "task_1_sensor_acq.h"
 #include "srv_temp_monitor.h"
+#include <stdio.h>
 
 #define SENSOR_PIN      39
 #define RED_LED_PIN     31
@@ -16,13 +17,17 @@
 #define DEBOUNCE_MAX    3
 
 void task_1_sensor_acq_setup(void) {
+    printf("[Sensor] task setup starting...\n");
     srvTempMonitorInit(SENSOR_PIN,
                        RED_LED_PIN, GREEN_LED_PIN,
                        SAT_MIN, SAT_MAX,
                        THRESH_HIGH, THRESH_LOW,
                        DEBOUNCE_MAX);
+    printf("[Sensor] task setup done\n");
 }
 
 void task_1_sensor_acq_loop(void) {
+    printf("[Sensor] reading...\n");
     srvTempMonitorUpdate();
+    printf("[Sensor] done, ok=%d\n", srvTempGetSensorOk());
 }

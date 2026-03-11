@@ -1,7 +1,7 @@
 #include "lw4_1.h"
 #include "task_1_sensor_acq.h"
 #include "task_2_lcd_report.h"
-#include "srv_lcd_stdio.h"
+#include "srv_serial_stdio.h"
 
 #include <Arduino.h>
 #include <Arduino_FreeRTOS.h>
@@ -10,10 +10,10 @@
 // --- Recurrences and offsets (ms) ---
 
 #define OFFS_SENSOR    0
-#define REC_SENSOR     100     // 100ms sensor read (DHT11 min ~1s but we handle failures)
+#define REC_SENSOR     2500    // DHT11 requires minimum 2s between reads
 
 #define OFFS_REPORT    50
-#define REC_REPORT     2000    // 2s LCD refresh
+#define REC_REPORT     3000    // 3s LCD refresh
 
 // --- Task priorities ---
 
@@ -22,8 +22,8 @@
 
 // --- Stack sizes ---
 
-#define STACK_SENSOR   192
-#define STACK_REPORT   256
+#define STACK_SENSOR   512
+#define STACK_REPORT   512
 
 // --- FreeRTOS task wrappers ---
 
@@ -62,9 +62,13 @@ static void task_report_rtos(void* pvParameters) {
 // --- Application entry points ---
 
 void lw4_1_setup(void) {
+    srvSerialSetup();
+    printf("LW4.1 starting...\n");
+
     xTaskCreate(task_sensor_rtos, "Sensor",  STACK_SENSOR, NULL, PRIO_SENSOR, NULL);
     xTaskCreate(task_report_rtos, "Report",  STACK_REPORT, NULL, PRIO_REPORT, NULL);
 
+    printf("Tasks created, starting scheduler\n");
     vTaskStartScheduler();
 }
 

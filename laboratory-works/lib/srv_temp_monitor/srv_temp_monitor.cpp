@@ -60,6 +60,14 @@ void srvTempMonitorInit(uint8_t sensorPin,
 void srvTempMonitorUpdate() {
     bool ok = sensor->read();
 
+    if (!ok) {
+        // Sensor read failed — skip conditioning, just update status
+        xSemaphoreTake(dataMutex, portMAX_DELAY);
+        sharedSensorOk = 0;
+        xSemaphoreGive(dataMutex);
+        return;
+    }
+
     int raw = sensor->getRawTemperature();
     int humidity = sensor->getRawHumidity();
 
@@ -92,7 +100,7 @@ void srvTempMonitorUpdate() {
     sharedHumidity = humidity;
     sharedAlertRaw = alertRaw;
     sharedAlertDebounced = alertDebounced;
-    sharedSensorOk = ok ? 1 : 0;
+    sharedSensorOk = 1;
     xSemaphoreGive(dataMutex);
 }
 
