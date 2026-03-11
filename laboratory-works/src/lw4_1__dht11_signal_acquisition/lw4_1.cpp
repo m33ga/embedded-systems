@@ -1,7 +1,7 @@
 #include "lw4_1.h"
 #include "task_1_sensor_acq.h"
 #include "task_2_lcd_report.h"
-#include "srv_serial_stdio.h"
+#include "srv_lcd_stdio.h"
 
 #include <Arduino.h>
 #include <Arduino_FreeRTOS.h>
@@ -62,13 +62,9 @@ static void task_report_rtos(void* pvParameters) {
 // --- Application entry points ---
 
 void lw4_1_setup(void) {
-    srvSerialSetup();
-    printf("LW4.1 starting...\n");
-
     xTaskCreate(task_sensor_rtos, "Sensor",  STACK_SENSOR, NULL, PRIO_SENSOR, NULL);
     xTaskCreate(task_report_rtos, "Report",  STACK_REPORT, NULL, PRIO_REPORT, NULL);
 
-    printf("Tasks created, starting scheduler\n");
     vTaskStartScheduler();
 }
 
