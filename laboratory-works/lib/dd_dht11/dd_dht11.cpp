@@ -10,20 +10,20 @@ Dht11::Dht11(uint8_t pin) : pin(pin), rawTemperature(0), rawHumidity(0) {
 }
 
 bool Dht11::read() {
-    // DHT11 protocol is timing-critical (microsecond bit detection).
-    // Disable interrupts to prevent FreeRTOS tick from corrupting the read.
-    noInterrupts();
-    float t = dhtInstance->readTemperature();
-    float h = dhtInstance->readHumidity();
-    interrupts();
+    // DHT11 reads can fail due to timing conflicts with FreeRTOS.
+    // Retry up to 3 times with short delays between attempts.
+    for (uint8_t attempt = 0; attempt < 3; attempt++) {
+        float t = dhtInstance->readTemperature();
+        float h = dhtInstance->readHumidity();
 
-    if (isnan(t) || isnan(h)) {
-        return false;
+        if (!isnan(t) && !isnan(h)) {
+            rawTemperature = (int)(t * 10);
+            rawHumidity = (int)(h * 10);
+            return true;
+        }
+        delay(100);
     }
-
-    rawTemperature = (int)(t * 10);
-    rawHumidity = (int)(h * 10);
-    return true;
+    return false;
 }
 
 int Dht11::getRawTemperature() const {
