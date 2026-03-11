@@ -1,10 +1,10 @@
-#include "lw3_2__led_button_tasks_freertos/lw3_2.h"
+#include "lw4_1__dht11_signal_acquisition/lw4_1.h"
 #include <Arduino.h>
 
 void setup() {
-    lw3_2_setup();
+    lw4_1_setup();
 }
 
 void loop() {
-    lw3_2_loop();
+    lw4_1_loop();
 }
