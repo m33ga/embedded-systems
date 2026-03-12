@@ -6,8 +6,7 @@
 #include <stdlib.h>
 
 void task_2_lcd_report_setup(void) {
-    srvLCDInit();
-    srvLCDSetup();
+    srvLCDClear();
 }
 
 void task_2_lcd_report_loop(void) {

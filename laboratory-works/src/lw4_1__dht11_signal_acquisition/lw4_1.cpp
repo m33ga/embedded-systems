@@ -62,6 +62,9 @@ static void task_report_rtos(void* pvParameters) {
 // --- Application entry points ---
 
 void lw4_1_setup(void) {
+    srvLCDSetup();
+    srvLCDInit();
+
     xTaskCreate(task_sensor_rtos, "Sensor",  STACK_SENSOR, NULL, PRIO_SENSOR, NULL);
     xTaskCreate(task_report_rtos, "Report",  STACK_REPORT, NULL, PRIO_REPORT, NULL);
 
