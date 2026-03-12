@@ -1,15 +1,9 @@
 #include "task_2_lcd_report.h"
-#include "srv_temp_monitor.h"
+#include "srv_dist_monitor.h"
 #include "srv_light_monitor.h"
 #include "srv_lcd_stdio.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-static void printTenths(const char* prefix, int val) {
-    int whole = val / 10;
-    int frac = abs(val % 10);
-    printf("%s%d.%d", prefix, whole, frac);
-}
 
 void task_2_lcd_report_setup(void) {
     srvLCDInit();
@@ -17,10 +11,10 @@ void task_2_lcd_report_setup(void) {
 }
 
 void task_2_lcd_report_loop(void) {
-    // Get temperature data
-    int tempFlt = srvTempGetFiltered();
-    uint8_t tempAlert = srvTempGetAlertDebounced();
-    uint8_t tempOk = srvTempGetSensorOk();
+    // Get distance data (in mm)
+    int distFlt = srvDistGetFiltered();
+    uint8_t distAlert = srvDistGetAlertDebounced();
+    uint8_t distOk = srvDistGetSensorOk();
 
     // Get light data
     int lightFlt = srvLightGetFiltered();
@@ -28,20 +22,19 @@ void task_2_lcd_report_loop(void) {
 
     srvLCDClear();
 
-    // Line 1: Temperature + Light readings (16 chars max)
-    // Format: "T:26.5C L:45%"
+    // Line 1: Distance + Light readings (16 chars max)
+    // Format: "D:123mm L:45%"
     srvLCDCursor(0, 0);
-    if (tempOk) {
-        printTenths("T:", tempFlt);
-        printf("C L:%d%%", lightFlt);
+    if (distOk) {
+        printf("D:%dmm L:%d%%", distFlt, lightFlt);
     } else {
-        printf("T:ERR L:%d%%", lightFlt);
+        printf("D:ERR L:%d%%", lightFlt);
     }
 
     // Line 2: Alert status for both sensors
-    // Format: "TA:OFF LA:ON"
+    // Format: "DA:OFF LA:ON"
     srvLCDCursor(0, 1);
-    printf("TA:%s LA:%s",
-           tempAlert ? "ON " : "OFF",
+    printf("DA:%s LA:%s",
+           distAlert ? "ON " : "OFF",
            lightAlert ? "ON " : "OFF");
 }

@@ -10,10 +10,10 @@
 // --- Recurrences and offsets (ms) ---
 
 #define OFFS_SENSOR    0
-#define REC_SENSOR     2500    // DHT11 requires minimum 2s between reads
+#define REC_SENSOR     100     // HC-SR04 can read fast (~60ms per measurement)
 
 #define OFFS_REPORT    50
-#define REC_REPORT     3000    // 3s LCD refresh (no point to do it faster)
+#define REC_REPORT     200     // Fast LCD refresh for responsive display
 
 // --- Task priorities ---
 
