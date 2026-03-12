@@ -13,7 +13,7 @@
 #define REC_SENSOR     100     // HC-SR04 can read fast (~60ms per measurement)
 
 #define OFFS_REPORT    50
-#define REC_REPORT     200     // Fast LCD refresh for responsive display
+#define REC_REPORT     500     // Keep LCD refresh readable and electrically stable
 
 // --- Task priorities ---
 
@@ -23,7 +23,7 @@
 // --- Stack sizes ---
 
 #define STACK_SENSOR   512
-#define STACK_REPORT   512
+#define STACK_REPORT   768
 
 // --- FreeRTOS task wrappers ---
 
