@@ -1,5 +1,6 @@
 #include "task_2_lcd_report.h"
 #include "srv_temp_monitor.h"
+#include "srv_light_monitor.h"
 #include "srv_lcd_stdio.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,26 +17,31 @@ void task_2_lcd_report_setup(void) {
 }
 
 void task_2_lcd_report_loop(void) {
-    int flt = srvTempGetFiltered();
-    int hum = srvTempGetHumidity();
-    uint8_t alertDeb = srvTempGetAlertDebounced();
-    uint8_t sensorOk = srvTempGetSensorOk();
+    // Get temperature data
+    int tempFlt = srvTempGetFiltered();
+    uint8_t tempAlert = srvTempGetAlertDebounced();
+    uint8_t tempOk = srvTempGetSensorOk();
+
+    // Get light data
+    int lightFlt = srvLightGetFiltered();
+    uint8_t lightAlert = srvLightGetAlertDebounced();
 
     srvLCDClear();
 
-    // Line 1: temperature + humidity (16 chars max)
-    // e.g. "T:26.5C H:36.4%"
+    // Line 1: Temperature + Light readings (16 chars max)
+    // Format: "T:26.5C L:45%"
     srvLCDCursor(0, 0);
-    if (sensorOk) {
-        printTenths("T:", flt);
-        printTenths("C H:", hum);
-        printf("%%");
+    if (tempOk) {
+        printTenths("T:", tempFlt);
+        printf("C L:%d%%", lightFlt);
     } else {
-        printf("Sensor ERROR!   ");
+        printf("T:ERR L:%d%%", lightFlt);
     }
 
-    // Line 2: alert status
-    // e.g. "Alert: OFF      " or "Alert: ON       "
+    // Line 2: Alert status for both sensors
+    // Format: "TA:OFF LA:ON"
     srvLCDCursor(0, 1);
-    printf("Alert: %s", alertDeb ? "ON " : "OFF");
+    printf("TA:%s LA:%s",
+           tempAlert ? "ON " : "OFF",
+           lightAlert ? "ON " : "OFF");
 }
