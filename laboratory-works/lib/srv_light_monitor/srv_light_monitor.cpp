@@ -9,9 +9,12 @@
 
 static Photoresistor* sensor = nullptr;
 
+static SigCondBuffer medianBuf;
+static SigCondBuffer avgBuf;
 static SigCondHysteresis hysteresis;
 static SigCondDebounce debounce;
 
+static const int WEIGHTS[] = {50, 25, 15, 10};
 static int satMin, satMax;
 static uint8_t hystPercent;
 
@@ -26,6 +29,8 @@ static SemaphoreHandle_t dataMutex = nullptr;
 static int sharedRaw = 0;
 static int sharedPercent = 0;
 static int sharedSaturated = 0;
+static int sharedMedian = 0;
+static int sharedFiltered = 0;
 static uint8_t sharedAlertRaw = 0;
 static uint8_t sharedAlertDebounced = 0;
 
@@ -41,6 +46,8 @@ void srvLightMonitorInit(uint8_t sensorPin,
     satMax = satMaxVal;
     hystPercent = hysteresisPercent;
 
+    sigCondBufferInit(&medianBuf, 5);
+    sigCondBufferInit(&avgBuf, 4);
     // Hysteresis thresholds will be set after first read (calibration)
     sigCondHysteresisInit(&hysteresis, 0, 0);
     sigCondDebounceInit(&debounce, debounceMax);
@@ -72,9 +79,13 @@ void srvLightMonitorUpdate() {
 
     // Conditioning chain (on percentage value for consistency)
     int saturated = sigCondSaturate(percent, satMin, satMax);
+    int median = sigCondMedianFilter(&medianBuf, saturated);
+
+    sigCondBufferInsert(&avgBuf, median);
+    int filtered = sigCondWeightedAvg(&avgBuf, WEIGHTS);
 
     // Threshold alerting chain
-    uint8_t alertRaw = sigCondHysteresisApply(&hysteresis, saturated);
+    uint8_t alertRaw = sigCondHysteresisApply(&hysteresis, filtered);
     uint8_t alertDebounced = sigCondDebounceApply(&debounce, alertRaw);
 
     // Store under mutex
@@ -82,6 +93,8 @@ void srvLightMonitorUpdate() {
     sharedRaw = raw;
     sharedPercent = percent;
     sharedSaturated = saturated;
+    sharedMedian = median;
+    sharedFiltered = filtered;
     sharedAlertRaw = alertRaw;
     sharedAlertDebounced = alertDebounced;
     xSemaphoreGive(dataMutex);
@@ -109,6 +122,22 @@ int srvLightGetSaturated() {
     int v;
     xSemaphoreTake(dataMutex, portMAX_DELAY);
     v = sharedSaturated;
+    xSemaphoreGive(dataMutex);
+    return v;
+}
+
+int srvLightGetMedian() {
+    int v;
+    xSemaphoreTake(dataMutex, portMAX_DELAY);
+    v = sharedMedian;
+    xSemaphoreGive(dataMutex);
+    return v;
+}
+
+int srvLightGetFiltered() {
+    int v;
+    xSemaphoreTake(dataMutex, portMAX_DELAY);
+    v = sharedFiltered;
     xSemaphoreGive(dataMutex);
     return v;
 }

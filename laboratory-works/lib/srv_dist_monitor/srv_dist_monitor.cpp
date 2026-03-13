@@ -12,9 +12,12 @@ static HcSr04* sensor = nullptr;
 static Led* redLed = nullptr;
 static Led* greenLed = nullptr;
 
+static SigCondBuffer medianBuf;
+static SigCondBuffer avgBuf;
 static SigCondHysteresis hysteresis;
 static SigCondDebounce debounce;
 
+static const int WEIGHTS[] = {50, 25, 15, 10};
 static int satMin, satMax;
 
 // --- Protected shared data ---
@@ -23,6 +26,8 @@ static SemaphoreHandle_t dataMutex = nullptr;
 
 static int sharedRaw = 0;
 static int sharedSaturated = 0;
+static int sharedMedian = 0;
+static int sharedFiltered = 0;
 static uint8_t sharedAlertRaw = 0;
 static uint8_t sharedAlertDebounced = 0;
 static uint8_t sharedSensorOk = 0;
@@ -41,6 +46,8 @@ void srvDistMonitorInit(uint8_t trigPin, uint8_t echoPin,
     satMin = satMinVal;
     satMax = satMaxVal;
 
+    sigCondBufferInit(&medianBuf, 5);
+    sigCondBufferInit(&avgBuf, 4);
     sigCondHysteresisInit(&hysteresis, threshHigh, threshLow);
     sigCondDebounceInit(&debounce, debounceMax);
 
@@ -63,9 +70,13 @@ void srvDistMonitorUpdate() {
 
     // Conditioning chain
     int saturated = sigCondSaturate(raw, satMin, satMax);
+    int median = sigCondMedianFilter(&medianBuf, saturated);
+
+    sigCondBufferInsert(&avgBuf, median);
+    int filtered = sigCondWeightedAvg(&avgBuf, WEIGHTS);
 
     // Threshold alerting chain (alert when too close)
-    uint8_t alertRaw = sigCondHysteresisApply(&hysteresis, saturated);
+    uint8_t alertRaw = sigCondHysteresisApply(&hysteresis, filtered);
     uint8_t alertDebounced = sigCondDebounceApply(&debounce, alertRaw);
 
     // Drive alert LEDs: red = too close (alert), green = safe distance
@@ -81,6 +92,8 @@ void srvDistMonitorUpdate() {
     xSemaphoreTake(dataMutex, portMAX_DELAY);
     sharedRaw = raw;
     sharedSaturated = saturated;
+    sharedMedian = median;
+    sharedFiltered = filtered;
     sharedAlertRaw = alertRaw;
     sharedAlertDebounced = alertDebounced;
     sharedSensorOk = 1;
@@ -101,6 +114,22 @@ int srvDistGetSaturated() {
     int v;
     xSemaphoreTake(dataMutex, portMAX_DELAY);
     v = sharedSaturated;
+    xSemaphoreGive(dataMutex);
+    return v;
+}
+
+int srvDistGetMedian() {
+    int v;
+    xSemaphoreTake(dataMutex, portMAX_DELAY);
+    v = sharedMedian;
+    xSemaphoreGive(dataMutex);
+    return v;
+}
+
+int srvDistGetFiltered() {
+    int v;
+    xSemaphoreTake(dataMutex, portMAX_DELAY);
+    v = sharedFiltered;
     xSemaphoreGive(dataMutex);
     return v;
 }

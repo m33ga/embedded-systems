@@ -17,6 +17,8 @@ void srvTempMonitorUpdate();
 // Thread-safe getters (call from reporting task)
 int srvTempGetRaw();
 int srvTempGetSaturated();
+int srvTempGetMedian();
+int srvTempGetFiltered();
 int srvTempGetHumidity();
 uint8_t srvTempGetAlertRaw();
 uint8_t srvTempGetAlertDebounced();

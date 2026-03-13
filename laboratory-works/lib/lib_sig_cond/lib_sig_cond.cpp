@@ -1,4 +1,5 @@
 #include "lib_sig_cond.h"
+#include <string.h>
 
 // --- Saturation ---
 
@@ -6,6 +7,76 @@ int sigCondSaturate(int value, int minVal, int maxVal) {
     if (value < minVal) return minVal;
     if (value > maxVal) return maxVal;
     return value;
+}
+
+// --- Circular Buffer ---
+
+void sigCondBufferInit(SigCondBuffer* buf, uint8_t size) {
+    if (size > SIG_COND_BUF_MAX) size = SIG_COND_BUF_MAX;
+    buf->size = size;
+    buf->head = 0;
+    buf->count = 0;
+    memset(buf->data, 0, sizeof(buf->data));
+}
+
+void sigCondBufferInsert(SigCondBuffer* buf, int value) {
+    buf->data[buf->head] = value;
+    buf->head = (buf->head + 1) % buf->size;
+    if (buf->count < buf->size) buf->count++;
+}
+
+void sigCondBufferCopy(const SigCondBuffer* buf, int* dest) {
+    for (uint8_t i = 0; i < buf->count; i++) {
+        dest[i] = buf->data[i];
+    }
+}
+
+// --- Sorting ---
+
+void sigCondBubbleSort(int* arr, uint8_t len) {
+    for (uint8_t i = 0; i < len - 1; i++) {
+        for (uint8_t j = 0; j < len - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                int tmp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = tmp;
+            }
+        }
+    }
+}
+
+// --- Median ---
+
+int sigCondMedian(const int* sortedArr, uint8_t len) {
+    if (len == 0) return 0;
+    if (len % 2 == 1) return sortedArr[len / 2];
+    return (sortedArr[len / 2 - 1] + sortedArr[len / 2]) / 2;
+}
+
+int sigCondMedianFilter(SigCondBuffer* buf, int newValue) {
+    sigCondBufferInsert(buf, newValue);
+    int tmp[SIG_COND_BUF_MAX];
+    sigCondBufferCopy(buf, tmp);
+    sigCondBubbleSort(tmp, buf->count);
+    return sigCondMedian(tmp, buf->count);
+}
+
+// --- Weighted Average ---
+
+int sigCondWeightedAvg(const SigCondBuffer* buf, const int* weights) {
+    if (buf->count == 0) return 0;
+    long sumUp = 0;
+    long sumDn = 0;
+    // weights[0] = newest, weights[count-1] = oldest
+    // buffer stores newest at (head-1), oldest at (head - count)
+    for (uint8_t i = 0; i < buf->count; i++) {
+        // index from newest to oldest
+        uint8_t idx = (buf->head + buf->size - 1 - i) % buf->size;
+        sumUp += (long)buf->data[idx] * weights[i];
+        sumDn += weights[i];
+    }
+    if (sumDn == 0) return 0;
+    return (int)(sumUp / sumDn);
 }
 
 // --- Hysteresis Threshold ---
