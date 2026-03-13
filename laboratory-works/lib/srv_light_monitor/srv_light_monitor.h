@@ -17,8 +17,6 @@ void srvLightMonitorUpdate();
 int srvLightGetRaw();           // Raw ADC value (0-1023)
 int srvLightGetPercent();       // As percentage (0-100)
 int srvLightGetSaturated();
-int srvLightGetMedian();
-int srvLightGetFiltered();
 int srvLightGetBaseline();      // First-read calibration value
 uint8_t srvLightGetAlertRaw();
 uint8_t srvLightGetAlertDebounced();

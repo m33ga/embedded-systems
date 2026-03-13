@@ -11,12 +11,12 @@ void task_2_lcd_report_setup(void) {
 
 void task_2_lcd_report_loop(void) {
     // Get distance data (in mm)
-    int distFlt = srvDistGetFiltered();
+    int distVal = srvDistGetSaturated();
     uint8_t distAlert = srvDistGetAlertDebounced();
     uint8_t distOk = srvDistGetSensorOk();
 
     // Get light data
-    int lightFlt = srvLightGetFiltered();
+    int lightVal = srvLightGetPercent();
     uint8_t lightAlert = srvLightGetAlertDebounced();
 
     srvLCDClear();
@@ -25,9 +25,9 @@ void task_2_lcd_report_loop(void) {
     // Format: "D:123mm L:45%"
     srvLCDCursor(0, 0);
     if (distOk) {
-        printf("D:%dmm L:%d%%", distFlt, lightFlt);
+        printf("D:%dmm L:%d%%", distVal, lightVal);
     } else {
-        printf("D:ERR L:%d%%", lightFlt);
+        printf("D:ERR L:%d%%", lightVal);
     }
 
     // Line 2: Alert status for both sensors

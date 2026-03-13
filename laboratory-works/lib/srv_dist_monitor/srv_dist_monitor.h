@@ -17,8 +17,6 @@ void srvDistMonitorUpdate();
 // Thread-safe getters (call from reporting task)
 int srvDistGetRaw();         // Raw distance in mm
 int srvDistGetSaturated();
-int srvDistGetMedian();
-int srvDistGetFiltered();
 uint8_t srvDistGetAlertRaw();
 uint8_t srvDistGetAlertDebounced();
 uint8_t srvDistGetSensorOk();
