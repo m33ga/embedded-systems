@@ -1,10 +1,10 @@
-#include "lw4_1__dht11_signal_acquisition/lw4_1.h"
+#include "lw4_2__signal_acquisition_conditioning/lw4_2.h"
 #include <Arduino.h>
 
 void setup() {
-    lw4_1_setup();
+    lw4_2_setup();
 }
 
 void loop() {
-    lw4_1_loop();
+    lw4_2_loop();
 }
