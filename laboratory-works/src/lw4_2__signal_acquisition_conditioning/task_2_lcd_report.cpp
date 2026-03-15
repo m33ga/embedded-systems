@@ -5,12 +5,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static void printTenths(const char* prefix, int val) {
+    int whole = val / 10;
+    int frac = abs(val % 10);
+    printf("%s%d.%d", prefix, whole, frac);
+}
+
 void task_2_lcd_report_setup(void) {
     srvLCDClear();
 }
 
 void task_2_lcd_report_loop(void) {
-    // Get temperature data (in °C)
+    // Get temperature data
     int tempFlt = srvTempGetFiltered();
     uint8_t tempAlert = srvTempGetAlertDebounced();
     uint8_t tempOk = srvTempGetSensorOk();
@@ -22,10 +28,11 @@ void task_2_lcd_report_loop(void) {
     srvLCDClear();
 
     // Line 1: Temperature + Light readings (16 chars max)
-    // Format: "T:25°C L:45%", divide temp by 10 to get °C from tenths of degree
+    // Format: "T:26.5C L:45%"
     srvLCDCursor(0, 0);
     if (tempOk) {
-        printf("T:%.1fC L:%d%%", tempFlt / 10.0, lightFlt);
+        printTenths("T:", tempFlt);
+        printf("C L:%d%%", lightFlt);
     } else {
         printf("T:ERR L:%d%%", lightFlt);
     }

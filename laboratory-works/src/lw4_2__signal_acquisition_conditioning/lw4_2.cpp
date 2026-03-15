@@ -10,10 +10,10 @@
 // --- Recurrences and offsets (ms) ---
 
 #define OFFS_SENSOR    0
-#define REC_SENSOR     2500     // DHT11 is slow
+#define REC_SENSOR     2500    // DHT11 requires minimum 2s between reads
 
 #define OFFS_REPORT    50
-#define REC_REPORT     3000     // Keep LCD refresh readable and electrically stable
+#define REC_REPORT     3000    // 3s LCD refresh (no point to do it faster)
 
 // --- Task priorities ---
 
@@ -23,7 +23,7 @@
 // --- Stack sizes ---
 
 #define STACK_SENSOR   512
-#define STACK_REPORT   768
+#define STACK_REPORT   512
 
 // --- FreeRTOS task wrappers ---
 
