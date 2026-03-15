@@ -1,17 +1,16 @@
 #include "task_1_sensor_acq.h"
-#include "srv_dist_monitor.h"
+#include "srv_temp_monitor.h"
 #include "srv_light_monitor.h"
 #include <Arduino.h>
 
-// --- HC-SR04 Distance Sensor ---
-#define DIST_TRIG_PIN       39
-#define DIST_ECHO_PIN       41
+// --- DHT11 Temperature Sensor ---
+#define TEMP_SENSOR_PIN     39
 #define RED_LED_PIN         31
 #define GREEN_LED_PIN       33
 
-// Distance thresholds in mm: alert when closer than 200mm (20cm)
-#define DIST_THRESH_HIGH    250   // 25cm - above this = safe (alert off)
-#define DIST_THRESH_LOW     150   // 15cm - below this = too close (alert on)
+// Temperature thresholds in °C: alert when above 30°C
+#define TEMP_THRESH_HIGH    26   // Above this = alert on
+#define TEMP_THRESH_LOW     24   // Below this = alert off
 
 // Saturation limits in mm (2cm to 400cm)
 #define DIST_SAT_MIN        20
@@ -32,11 +31,11 @@
 #define LIGHT_DEBOUNCE_MAX  3
 
 void task_1_sensor_acq_setup(void) {
-    // Initialize distance monitor (with LED control)
-    srvDistMonitorInit(DIST_TRIG_PIN, DIST_ECHO_PIN,
+    // Initialize temperature monitor (with LED control)
+    srvTempMonitorInit(TEMP_SENSOR_PIN,
                        RED_LED_PIN, GREEN_LED_PIN,
                        DIST_SAT_MIN, DIST_SAT_MAX,
-                       DIST_THRESH_HIGH, DIST_THRESH_LOW,
+                       TEMP_THRESH_HIGH, TEMP_THRESH_LOW,
                        DIST_DEBOUNCE_MAX);
 
     // Initialize light monitor (no LED)
@@ -47,6 +46,6 @@ void task_1_sensor_acq_setup(void) {
 }
 
 void task_1_sensor_acq_loop(void) {
-    srvDistMonitorUpdate();
+    srvTempMonitorUpdate();
     srvLightMonitorUpdate();
 }
