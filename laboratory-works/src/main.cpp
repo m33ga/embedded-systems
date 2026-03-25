@@ -1,10 +1,10 @@
-#include "lw4_2__signal_acquisition_conditioning/lw4_2.h"
+#include "lw5_1__binary_actuator/lw5_1.h"
 #include <Arduino.h>
 
 void setup() {
-    lw4_2_setup();
+    lw5_1_setup();
 }
 
 void loop() {
-    lw4_2_loop();
+    lw5_1_loop();
 }
