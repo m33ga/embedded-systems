@@ -50,4 +50,13 @@ typedef struct {
 void sigCondDebounceInit(SigCondDebounce* d, uint8_t maxCount);
 uint8_t sigCondDebounceApply(SigCondDebounce* d, uint8_t rawState);
 
+// --- Ramp (smooth transition) ---
+typedef struct {
+    int current;
+    int step;
+} SigCondRamp;
+
+void sigCondRampInit(SigCondRamp* r, int startValue, int step);
+int sigCondRampApply(SigCondRamp* r, int target);
+
 #endif

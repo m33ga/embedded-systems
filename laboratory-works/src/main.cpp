@@ -1,10 +1,10 @@
-#include "lw5_1__binary_actuator/lw5_1.h"
+#include "lw5_2__analog_actuator/lw5_2.h"
 #include <Arduino.h>
 
 void setup() {
-    lw5_1_setup();
+    lw5_2_setup();
 }
 
 void loop() {
-    lw5_1_loop();
+    lw5_2_loop();
 }
