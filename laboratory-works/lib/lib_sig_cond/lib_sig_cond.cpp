@@ -118,3 +118,21 @@ uint8_t sigCondDebounceApply(SigCondDebounce* d, uint8_t rawState) {
     }
     return d->confirmedState;
 }
+
+// --- Ramp (smooth transition) ---
+
+void sigCondRampInit(SigCondRamp* r, int startValue, int step) {
+    r->current = startValue;
+    r->step = step;
+}
+
+int sigCondRampApply(SigCondRamp* r, int target) {
+    if (r->current < target) {
+        r->current += r->step;
+        if (r->current > target) r->current = target;
+    } else if (r->current > target) {
+        r->current -= r->step;
+        if (r->current < target) r->current = target;
+    }
+    return r->current;
+}
