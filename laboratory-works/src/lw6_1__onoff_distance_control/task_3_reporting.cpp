@@ -26,19 +26,8 @@ void task_3_reporting_loop(void) {
     srvLCDCursor(0, 0);
     printf("SP:%-4d D:%-4d", sp, dist);
 
-    // Line 2: relay state + warning
+    // Line 2: relay state + error + warning
     srvLCDCursor(0, 1);
-    printf("Rly:%s %s", rly ? "ON " : "OFF",
-           warn ? "W" : " ");
-
-    // --- Serial output (switch stdout to serial, print, switch back) ---
-    srvSerialSetup();
-    if (!sok) {
-        printf("[SENSOR ERR] ");
-    }
-    printf("SP:%d D:%d Rly:%s Err:%d %s\n",
-           sp, dist,
-           rly ? "ON" : "OFF",
-           error,
-           warn ? "WARN" : "OK");
+    printf("Rly:%s E:%-3d %s", rly ? "ON " : "OFF",
+           error, warn ? "W" : " ");
 }
