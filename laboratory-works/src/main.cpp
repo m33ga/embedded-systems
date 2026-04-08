@@ -1,10 +1,10 @@
-#include "lw5_2__analog_actuator/lw5_2.h"
+#include "lw6_1__onoff_distance_control/lw6_1.h"
 #include <Arduino.h>
 
 void setup() {
-    lw5_2_setup();
+    lw6_1_setup();
 }
 
 void loop() {
-    lw5_2_loop();
+    lw6_1_loop();
 }
