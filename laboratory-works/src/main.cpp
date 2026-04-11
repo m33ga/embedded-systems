@@ -1,10 +1,10 @@
-#include "lw7_1__fsm_button_led/lw7_1.h"
+#include "lw7_2__fsm_traffic_light/lw7_2.h"
 #include <Arduino.h>
 
 void setup() {
-    lw7_1_setup();
+    lw7_2_setup();
 }
 
 void loop() {
-    lw7_1_loop();
+    lw7_2_loop();
 }
