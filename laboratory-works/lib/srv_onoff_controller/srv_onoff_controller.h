@@ -3,14 +3,14 @@
 
 #include <stdint.h>
 
-// All values in mm (distance domain)
+// All values in tenths of °C (temperature domain)
 
 void srvOnOffControllerInit(int hystBand, int alertThreshold);
 
-// Thread-safe setpoint setter (mm)
+// Thread-safe setpoint setter (tenths °C)
 void srvOnOffControllerSetSetpoint(int sp);
 
-// Run one control cycle with the latest measured value (mm)
+// Run one control cycle with the latest measured value (tenths °C)
 void srvOnOffControllerUpdate(int measured);
 
 // Thread-safe getters

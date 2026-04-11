@@ -18,12 +18,12 @@ void task_1_cmd_input_loop(void) {
     }
     buf[i] = '\0';
 
-    // Setpoint command: SP<value_mm>
-    // e.g. SP200 sets setpoint to 200mm
+    // Setpoint command: SP<value_tenths_C>
+    // e.g. SP300 sets setpoint to 30.0°C
     if ((buf[0] == 'S' || buf[0] == 's') &&
         (buf[1] == 'P' || buf[1] == 'p') && i > 2) {
         int val = atoi(&buf[2]);
-        if (val >= 20 && val <= 4000) {
+        if (val >= 150 && val <= 500) {
             srvOnOffControllerSetSetpoint(val);
         }
     }

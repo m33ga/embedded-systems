@@ -7,7 +7,7 @@ static int hystBand = 0;
 static int alertThresh = 0;
 
 static SemaphoreHandle_t dataMutex = nullptr;
-static int sharedSetpoint = 200;
+static int sharedSetpoint = 300;
 static uint8_t sharedOutput = 0;
 static int sharedError = 0;
 static uint8_t sharedDeviationAlert = 0;
@@ -34,8 +34,8 @@ void srvOnOffControllerUpdate(int measured) {
     uint8_t output;
 
     // ON-OFF with hysteresis:
-    // measured < (sp - band) => too close => relay ON
-    // measured > (sp + band) => far enough => relay OFF
+    // measured < (sp - band) => too cold => heater ON
+    // measured > (sp + band) => warm enough => heater OFF
     // otherwise => keep previous state
     if (measured < sp - hystBand) {
         output = 1;
