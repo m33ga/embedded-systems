@@ -1,10 +1,10 @@
-#include "lw5_2__analog_actuator/lw5_2.h"
+#include "lw7_1__fsm_button_led/lw7_1.h"
 #include <Arduino.h>
 
 void setup() {
-    lw5_2_setup();
+    lw7_1_setup();
 }
 
 void loop() {
-    lw5_2_loop();
+    lw7_1_loop();
 }
